@@ -33,6 +33,8 @@ byte trigger2count=0; //stores the counts past since trigger 2 was set true
 byte trigger3count=0; //stores the counts past since trigger 3 was set true
 int angleChange=0;
 
+bool emergencyStatus = false;
+
 // ====================
 //      Setup code
 // ====================
@@ -180,7 +182,7 @@ void loop()
     String emergencySubject = F("Emergency!");
     String emergencyMessage = F("I am in an emergency and am in need of assitance!");
     sendMessage(emergencyMessage, emergencySubject);
-    bool emergencyStatus = true; //Set emergency status to true for use in other functions
+    emergencyStatus = true; //Set emergency status to true for use in other functions
 
   }
 
@@ -191,7 +193,7 @@ void loop()
     String Subject = F("False Alarm");
     String Message = F("Don't worry, the Humpty Dumpty device gave a false alarm or I have been helped / been able to help myself.");
     sendMessage(Subject, Message);
-    bool emergencyStatus = false; //Set emergency status to false for use in other functions
+    emergencyStatus = false; //Set emergency status to false for use in other functions
 
   }
 
