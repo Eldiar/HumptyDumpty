@@ -105,7 +105,7 @@ void loop(){
    trigger1=true;
    Serial.println("TRIGGER 1 ACTIVATED");
    }
-//It appears that delay is needed in order not to clog the port
+//Delay needed to prevent clogging of the port
  delay(100);
 }
 
