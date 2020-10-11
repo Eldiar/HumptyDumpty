@@ -1,3 +1,4 @@
+
 // Importing Libraries
 #include <WiFiEsp.h>
 #include <SoftwareSerial.h>
@@ -203,10 +204,13 @@ void loop()
  // Device output
  // -------------------
 
+ if (trigger1 and trigger2 and trigger3 == true){
+  emergencyStatus == true;
+ }
  // Add sending email
  // Add buzzer activation
   if (emergencyStatus == true){
-    
+    digitalWrite(6, HIGH);
   }
 
 
