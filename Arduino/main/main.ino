@@ -189,7 +189,7 @@ void loop()
     sendMessage(Subject, Message);
     // Update Emergency Status
     emergencyStatus = false; //Set emergency status to false for use in other functions
-
+  }
  // -------------------
  // Device output
  // -------------------
