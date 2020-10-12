@@ -133,14 +133,7 @@ void loop()
        }
      }
   }
- if (fall==true){ //in event of a fall detection
-   Serial.println("FALL DETECTED");
-   digitalWrite(11, LOW);
-   delay(20);
-   digitalWrite(11, HIGH);
-   fall=false;
-  // exit(1);
-   }
+
  if (trigger2count>=6){ //allow 0.5s for orientation change
    trigger2=false; trigger2count=0;
    Serial.println("TRIGGER 2 DECACTIVATED");
@@ -180,32 +173,31 @@ void loop()
 
   // Emergency button press detection
   if (digitalRead(emergencyBtnPin) == HIGH) {
-
-    // send Emergency Message:
     String emergencySubject = F("Emergency!");
     String emergencyMessage = F("I am in an emergency and am in need of assitance!");
+    // Send Emergency Message
     sendMessage(emergencyMessage, emergencySubject);
-    emergencyStatus = true; //Set emergency status to true for use in other functions
-
+    // Update Emergency Status
+    emergencyStatus = true;
   }
 
   // Reset button press detetion
   if (digitalRead(resetBtnPin) == HIGH) {
-
-    // send false alarm / reset Message:
     String Subject = F("False Alarm");
     String Message = F("Don't worry, the Humpty Dumpty device gave a false alarm or I have been helped / been able to help myself.");
+    // Send Reset Message
     sendMessage(Subject, Message);
+    // Update Emergency Status
     emergencyStatus = false; //Set emergency status to false for use in other functions
-
-  }
 
  // -------------------
  // Device output
  // -------------------
 
- if (trigger1 and trigger2 and trigger3 == true){
-  emergencyStatus == true;
+ if (fall==true){ //in event of a fall detection
+   Serial.println("FALL DETECTED");
+   emergencyStatus = true;
+   sendMessage(F("Fall Detected!"), F("I have fallen, if no reset message appears within a minute, please send help!"));   
  }
  // Add sending email
  // Add buzzer activation
