@@ -163,7 +163,7 @@ void loop()
 
  if (trigger2count>=6){ //allow 0.5s for orientation change
    trigger2=false; trigger2count=0;
-   Serial.println("TRIGGER 2 DECACTIVATED");
+   Serial.println(F("TRIGGER 2 DECACTIVATED"));
    }
  if (trigger1count>=6){ //allow 0.5s for AM to break upper threshold
    trigger1=false; trigger1count=0;
