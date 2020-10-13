@@ -30,9 +30,7 @@ int status = WL_IDLE_STATUS;                   // the Wifi radio's status
 const PROGMEM int MPU_addr=0x68;               // I2C address of the MPU-6050
 
 // Pulse detection variables
-int pulseSignal;
-const PROGMEM int pulseTreshholdHigh = 700;
-const PROGMEM int pulseTreshholdLow = 200;
+
 
 // Status variables for output
 bool emergencyStatus = false;
@@ -140,14 +138,14 @@ void loop()
 
 // Check pulse
 bool checkPulse(){
-   pulseSignal = analogRead(pulseSensorPin);             // Read the PulseSensor's value. 
+  int pulseSignal = analogRead(pulseSensorPin);             // Read the PulseSensor's value. 
                                                         // Assign this value to the "Signal" variable.
-  Serial.println(pulseSignal);                          // Send the Signal value to Serial Plotter.
+  //Serial.println(pulseSignal);                          // Send the Signal value to Serial Plotter.
 
-  if (pulseSignal < pulseTreshholdLow){                 // Check if pulse is below lower treshhold
+  if (pulseSignal < 300){                 // Check if pulse is below lower treshhold
     return false;
   }
-  if (pulseSignal > pulseTreshholdHigh){                // Check if pulse exceeds higher treshold
+  if (pulseSignal > 700){                // Check if pulse exceeds higher treshold
     return false;
   }
   else{
@@ -161,6 +159,7 @@ void wrongPulse(){
   sendMessage(F("Missing Pulse!"), F("Something is wrong with my heartrate. Please send help!"));
   pulseMessageSent = true; //prevents message to be sent multiple times
   }
+  
   
   emergencyStatus = true;  
 }
