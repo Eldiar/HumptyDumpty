@@ -37,11 +37,12 @@ int angleChange=0;
 
 // Pulse detection variables
 int pulseSignal;
-const PROGMEM int pulseTreshholdHigh =700;
+const PROGMEM int pulseTreshholdHigh = 700;
 const PROGMEM int pulseTreshholdLow = 200;
 
 // Status variables for output
 bool emergencyStatus = false;
+bool pulseMessageSent = false;
 
 // ====================
 //      Setup code
@@ -163,7 +164,7 @@ void loop()
 
  if (trigger2count>=6){ //allow 0.5s for orientation change
    trigger2=false; trigger2count=0;
-   Serial.println(F("TRIGGER 2 DECACTIVATED"));
+   Serial.println("TRIGGER 2 DECACTIVATED");
    }
  if (trigger1count>=6){ //allow 0.5s for AM to break upper threshold
    trigger1=false; trigger1count=0;
@@ -197,22 +198,10 @@ void loop()
  // -------------------
  // Pulse detection algorithm
  // -------------------
- 
- // Pulse Detection variables:
- // pulseSignal
- // pulseTreshholdHigh
- // pulseTreshholdLow
 
-  pulseSignal = analogRead(pulseSensorPin);             // Read the PulseSensor's value. 
-                                                        // Assign this value to the "Signal" variable.
-  Serial.println(pulseSignal);      // Send the Signal value to Serial Plotter.
-
-  if (pulseSignal < pulseTreshholdLow){                 // Check if pulse is below lower treshhold
-    emergencyStatus = true;
-  }
-  if (pulseSignal > pulseTreshholdHigh){                // Check if pulse exceeds higher treshold
-    emergencyStatus = true;
-  }
+ if (checkPulse() == false){
+  emergencyStatus = true;
+ }
 
  // -------------------
  // Buzzer
@@ -229,6 +218,33 @@ void loop()
 // Functions
 // ===================
 
+// Check pulse
+bool checkPulse(){
+   pulseSignal = analogRead(pulseSensorPin);             // Read the PulseSensor's value. 
+                                                        // Assign this value to the "Signal" variable.
+  Serial.println(pulseSignal);                          // Send the Signal value to Serial Plotter.
+
+  if (pulseSignal < pulseTreshholdLow){                 // Check if pulse is below lower treshhold
+    return false;
+  }
+  if (pulseSignal > pulseTreshholdHigh){                // Check if pulse exceeds higher treshold
+    return false;
+  }
+  else{
+    return true;
+  }
+}
+
+// Called when checkPulse() == false
+void wrongPulse(){
+  if (pulseMessageSent == false){
+  sendMessage(F("Missing Pulse!"), F("Something is wrong with my heartrate. Please send help!"));
+  pulseMessageSent = true; //prevents message to be sent multiple times
+  }
+  
+  emergencyStatus = true;  
+}
+
 // Called when fall has been detected
 void fallOccurance(){
    Serial.println(F("FALL DETECTED"));
@@ -237,11 +253,11 @@ void fallOccurance(){
    fall = false; 
 }
 
-
 // Called when reset button is pressed
 void reset(){
   emergencyStatus = false; // Resets emergency status variable
   fall = false;
+  pulseMessageSent = false; // Resets pulse message status variable
   sendMessage(F("False Alarm"), F("Do not worry, the Humpty Dumpty device gave off a false alarm. I have been helped or been able to help myself."));
 }
 // Called when emergency button is pressed
