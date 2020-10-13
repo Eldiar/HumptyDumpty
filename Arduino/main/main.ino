@@ -202,12 +202,7 @@ void loop()
   if (pulseSignal > pulseTreshholdHigh){                // Check if pulse exceeds higher treshold
     emergencyStatus = true;
   }
-  
- 
-  
 
-
-  
  // -------------------
  // Device output
  // -------------------
