@@ -1,3 +1,25 @@
+/* 
+--------------------------------------------------------------------------------------------------------------------------
+-- @description A sketch for sending email via SMTP. Working Example: https://www.youtube.com/watch?v=n5WZ_BNRvRY 
+-- You must use an account which can provide unencrypted authenticated access.
+-- This example was tested with an AOL and Time Warner email accounts. GMail does not offer unecrypted authenticated access.
+-- To obtain your email's SMTP server and port simply Google it e.g. [my email domain] SMTP settings
+-- For example for timewarner you'll get to this page http://www.timewarnercable.com/en/support/faqs/faqs-internet/e-mailacco/incoming-outgoing-server-addresses.html
+-- To Learn more about SMTP email visit:
+-- SMTP Commands Reference - http://www.samlogic.net/articles/smtp-commands-reference.htm
+-- See "SMTP transport example" in this page http://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol
+-----------------------------------------------------------------------------------------------------------------------------
+*/
+
+/*------------------------------------------------------------------------
+  Requires SoftwareSerial and an ESP8266 that's been
+  flashed with recent 'AT' firmware operating at 9600 baud.  Only tested
+  w/Adafruit-programmed modules: https://www.adafruit.com/product/2282
+
+  The ESP8266 is a 3.3V device.  Safe operation with 5V devices (most
+  Arduino boards) requires a logic-level shifter for TX and RX signals.
+  ------------------------------------------------------------------------*/
+
 #include <Adafruit_ESP8266.h>
 #include <SoftwareSerial.h>
 
@@ -14,19 +36,19 @@ Adafruit_ESP8266 wifi(&softser, &Serial, ESP_RST);
 #define ESP_SSID "networkName" // Your network name here
 #define ESP_PASS "networkPassword" // Your network password here
 
-char EMAIL_FROM[] = "HDdevice2020@gmail.com";
-char EMAIL_PASSWORD[] =  "Tielen123";
-char EMAIL_TO[] = "r.l.p.tielen@student.tue.nl";
+char EMAIL_FROM[] = "yourEmail@domain.com";
+char EMAIL_PASSWORD[] =  "yourEmail'sPassword";
+char EMAIL_TO[] = "toEmail@domain2.com";
 char SUBJECT[]  = "My ESP8266";
 char EMAIL_CONTENT[] = "Hello,\r\nThis is a message from your ESP8266.";
 
 // We'll need your EMAIL_FROM and its EMAIL_PASSWORD base64 encoded, you can use https://www.base64encode.org/
-#define EMAIL_FROM_BASE64 "AAAASAAAAEQAAABkAAAAZQAAAHYAAABpAAAAYwAAAGUAAAAyAAAAMAAAADIAAAAw"
-#define EMAIL_PASSWORD_BASE64 "AAAAVAAAAGkAAABlAAAAbAAAAGUAAABuAAAAMQAAADIAAAAzAAAACg=="
+#define EMAIL_FROM_BASE64 "yourEmailBase64Encoded"
+#define EMAIL_PASSWORD_BASE64 "yourEmail'sPasswordBase64Encoded"
 
-#define HOST     "smtp.gmail.com"     // Find/Google your email provider's SMTP outgoing server name for unencrypted email
+#define HOST     "mail.domain.com"     // Find/Google your email provider's SMTP outgoing server name for unencrypted email
 
-#define PORT     465                     // Find/Google your email provider's SMTP outgoing port for unencrypted email
+#define PORT     587                     // Find/Google your email provider's SMTP outgoing port for unencrypted email
 
 int count = 0; // we'll use this int to keep track of which command we need to send next
 bool send_flag = false; // we'll use this flag to know when to send the email commands
