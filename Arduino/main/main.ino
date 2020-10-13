@@ -3,37 +3,44 @@
 #include <WiFiEsp.h>
 #include <SoftwareSerial.h>
 #include <EMailSender.h>
-//#include "Wire.h"
+#include "Wire.h"
 
 //Defining pin functions
-
 SoftwareSerial EspSerial(2, 3); // RX, TX
-const PROGMEM int emergencyBtnPin = 11;
-const PROGMEM int resetBtnPin = 10;
-const PROGMEM int buzzerPin = 6;
+const PROGMEM int emergencyBtnPin = 11; //Digital
+const PROGMEM int resetBtnPin = 10; //Digital
+const PROGMEM int buzzerPin = 6; //Digital
+const PROGMEM int pulseSensorPin = 3; //Analog
+// GYRO PINS
+// SDA pin = Analog4
+// SCL pin = Analog5
 
 // Wifi Credentials
 const PROGMEM char ssid[] = "Network SSID";    // your network SSID (name)
 const PROGMEM char pass[] = "12345678";        // your network password
-int status = WL_IDLE_STATUS;     // the Wifi radio's status
+int status = WL_IDLE_STATUS;                   // the Wifi radio's status
 
-// Initialisation for fall detection
-const int MPU_addr=0x68;  // I2C address of the MPU-6050
+// Initialisation for GYRO
+const PROGMEM int MPU_addr=0x68;               // I2C address of the MPU-6050
 int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 float ax=0, ay=0, az=0, gx=0, gy=0, gz=0;
 
-//int data[STORE_SIZE][5]; //array for saving past data
-//byte currentIndex=0; //stores current data array index (0-255)
-boolean fall = false; //stores if a fall has occurred
-boolean trigger1=false; //stores if first trigger (lower threshold) has occurred
-boolean trigger2=false; //stores if second trigger (upper threshold) has occurred
-boolean trigger3=false; //stores if third trigger (orientation change) has occurred
-
-byte trigger1count=0; //stores the counts past since trigger 1 was set true
-byte trigger2count=0; //stores the counts past since trigger 2 was set true
-byte trigger3count=0; //stores the counts past since trigger 3 was set true
+// Fall detection variables
+boolean fall = false;       //stores if a fall has occurred
+boolean trigger1=false;     //stores if first trigger (lower threshold) has occurred
+boolean trigger2=false;     //stores if second trigger (upper threshold) has occurred
+boolean trigger3=false;     //stores if third trigger (orientation change) has occurred
+byte trigger1count=0;       //stores the counts past since trigger 1 was set true
+byte trigger2count=0;       //stores the counts past since trigger 2 was set true
+byte trigger3count=0;       //stores the counts past since trigger 3 was set true
 int angleChange=0;
 
+// Pulse detection variables
+int pulseSignal;
+const PROGMEM int pulseTreshholdHigh =700;
+const PROGMEM int pulseTreshholdLow = 200;
+
+// Status variables for output
 bool emergencyStatus = false;
 
 // ====================
@@ -56,14 +63,11 @@ void setup(){
     while (true);
 
   //setup for fall detection
-//   Wire.begin();
-//   Wire.beginTransmission(MPU_addr);
-//   Wire.write(0x6B);  // PWR_MGMT_1 register
-//   Wire.write(0);     // set to zero (wakes up the MPU-6050)
-//   Wire.endTransmission(true);
-
-  pinMode(11, OUTPUT);
-  digitalWrite(11, HIGH);
+   Wire.begin();
+   Wire.beginTransmission(MPU_addr);
+   Wire.write(0x6B);  // PWR_MGMT_1 register
+   Wire.write(0);     // set to zero (wakes up the MPU-6050)
+   Wire.endTransmission(true);
   }
 
   // attempt to connect to WiFi network
@@ -90,6 +94,18 @@ void setup(){
 
 void loop()
 {
+ // -------------------
+ // Button Functions
+ // -------------------
+
+  // Emergency button press detection
+  if (digitalRead(emergencyBtnPin) == HIGH) {
+     emergency();
+  }
+ // Reset button press detetion
+  if (digitalRead(resetBtnPin) == HIGH) {
+     reset();
+  }
  // -------------------
  // Fall detection
  // -------------------
@@ -168,28 +184,30 @@ void loop()
   delay(100);
 
  // -------------------
- // Button Functions
+ // Pulse detection
  // -------------------
+ 
+ // Pulse Detection variables:
+ // pulseSignal
+ // pulseTreshholdHigh
+ // pulseTreshholdLow
 
-  // Emergency button press detection
-  if (digitalRead(emergencyBtnPin) == HIGH) {
-    String emergencySubject = F("Emergency!");
-    String emergencyMessage = F("I am in an emergency and am in need of assitance!");
-    // Send Emergency Message
-    sendMessage(emergencyMessage, emergencySubject);
-    // Update Emergency Status
+  pulseSignal = analogRead(pulseSensorPin);             // Read the PulseSensor's value. 
+                                                        // Assign this value to the "Signal" variable.
+  Serial.println(pulseSignal);      // Send the Signal value to Serial Plotter.
+
+  if (pulseSignal < pulseTreshholdLow){                 // Check if pulse is below lower treshhold
     emergencyStatus = true;
   }
-
-  // Reset button press detetion
-  if (digitalRead(resetBtnPin) == HIGH) {
-    String Subject = F("False Alarm");
-    String Message = F("Don't worry, the Humpty Dumpty device gave a false alarm or I have been helped / been able to help myself.");
-    // Send Reset Message
-    sendMessage(Subject, Message);
-    // Update Emergency Status
-    emergencyStatus = false; //Set emergency status to false for use in other functions
+  if (pulseSignal > pulseTreshholdHigh){                // Check if pulse exceeds higher treshold
+    emergencyStatus = true;
   }
+  
+ 
+  
+
+
+  
  // -------------------
  // Device output
  // -------------------
@@ -199,7 +217,7 @@ void loop()
    emergencyStatus = true;
    sendMessage(F("Fall Detected!"), F("I have fallen, if no reset message appears within a minute, please send help!"));   
  }
- // Add sending email
+ 
  // Add buzzer activation
   if (emergencyStatus == true){
     digitalWrite(6, HIGH);
@@ -207,20 +225,39 @@ void loop()
 
 
 }
+
+// ===================
+// Functions
+// ===================
+
+// Called when reset button is pressed
+void reset(){
+  emergencyStatus = false; // Resets emergency status variable
+  fall = false;
+  sendMessage(F("False Alarm"), F("Do not worry, the Humpty Dumpty device gave off a false alarm. I have been helped or been able to help myself."));
+}
+
+void emergency(){
+    sendMessage(F("Emergency!"), F("I am in an emergency and am in need of assitance!"));
+    emergencyStatus = true;
+}
+
+
+
 //Read Gyro Values
-//void mpu_read(){
-// Wire.beginTransmission(MPU_addr);
-// Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
-// Wire.endTransmission(false);
-// Wire.requestFrom(MPU_addr,14,true);  // request a total of 14 registers
-// AcX=Wire.read()<<8|Wire.read();  // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)    
-// AcY=Wire.read()<<8|Wire.read();  // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
-// AcZ=Wire.read()<<8|Wire.read();  // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
-// Tmp=Wire.read()<<8|Wire.read();  // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
-// GyX=Wire.read()<<8|Wire.read();  // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
-// GyY=Wire.read()<<8|Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
-// GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
-// }
+void mpu_read(){
+  Wire.beginTransmission(MPU_addr);
+  Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU_addr,14,true);  // request a total of 14 registers
+  AcX=Wire.read()<<8|Wire.read();  // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)    
+  AcY=Wire.read()<<8|Wire.read();  // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
+  AcZ=Wire.read()<<8|Wire.read();  // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
+  Tmp=Wire.read()<<8|Wire.read();  // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L) 
+  GyX=Wire.read()<<8|Wire.read();  // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
+  GyY=Wire.read()<<8|Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
+  GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
+}
 
 // Email Sending function
 void sendMessage(String sbj, String msg){
