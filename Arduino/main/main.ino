@@ -1,12 +1,12 @@
 
 // Importing Libraries
-#include <WiFiEsp.h>
-#include <SoftwareSerial.h>
-#include <EMailSender.h>
+#include <WiFiEsp.h> //allows an Arduino board to connect to the internet. It can serve as either a server accepting incoming connections or a client making outgoing ones
+#include <SoftwareSerial.h> //allow serial communication on other digital pins of the Arduino, using software to replicate the functionality 
+#include <EMailSender.h> //to send an email using a provided mail server 
 #include "Wire.h"
 
 //Defining pin functions
-SoftwareSerial EspSerial(2, 3); // RX, TX
+SoftwareSerial EspSerial(2, 3); // RX, TX (pins of the wifi module)
 const PROGMEM int emergencyBtnPin = 11; //Digital
 const PROGMEM int resetBtnPin = 10; //Digital
 const PROGMEM int buzzerPin = 6; //Digital
@@ -114,7 +114,9 @@ void loop()
  
  //2050, 77, 1947 are values for calibration of accelerometer
  // values may be different for you
- ax = (AcX-2050)/16384.00;
+ ax = (AcX-2050)/16384.00; // the accelerometer gives a value between 1 & 16384.00. 
+                           //For the value of the accelerometer to be between the 0-1, the caliberation
+                           //value is subracted from the position at the x/y/z axis and divided by the maximum value
  ay = (AcY-77)/16384.00;
  az = (AcZ-1947)/16384.00;
 
@@ -123,7 +125,7 @@ void loop()
  gy = (GyY-351)/131.07;
  gz = (GyZ+136)/131.07;
 
- // calculating Amplitute vactor for 3 axis
+ // calculating Amplitute factor for 3 axis
  float Raw_AM = pow(pow(ax,2)+pow(ay,2)+pow(az,2),0.5);
  int AM = Raw_AM * 10;  // as values are within 0 to 1, I multiplied 
                         // it by for using if else conditions 
@@ -132,15 +134,15 @@ void loop()
  //Serial.println(PM);
  //delay(500);
 
- if (trigger3==true){
-    trigger3count++;
+ if (trigger3==true){ //trigger3 = angle change 
+    trigger3count++; //increment trigger 3
     //Serial.println(trigger3count);
     if (trigger3count>=10){ 
-       angleChange = pow(pow(gx,2)+pow(gy,2)+pow(gz,2),0.5);
+       angleChange = pow(pow(gx,2)+pow(gy,2)+pow(gz,2),0.5);// lenght of acceleration vector in 3 dimensions 
        //delay(10);
        Serial.println(angleChange); 
        if ((angleChange>=0) && (angleChange<=10)){ //if orientation changes remains between 0-10 degrees
-           fall=true; trigger3=false; trigger3count=0;
+           fall=true; trigger3=false; trigger3count=0;//reset triger count 
            Serial.println(angleChange);
              }
        else{ //user regained normal orientation
@@ -150,22 +152,23 @@ void loop()
      }
   }
 
- if (trigger2count>=6){ //allow 0.5s for orientation change
+ if (trigger2count>=6){ // breaking of upper threshold for acceleration //allow 0.5s for orientation change 
    trigger2=false; trigger2count=0;
    Serial.println(F("TRIGGER 2 DECACTIVATED"));
    }
- if (trigger1count>=6){ //allow 0.5s for AM to break upper threshold
+ if (trigger1count>=6){ //lower threshold for acceleration //allow 0.5s for AM to break upper threshold 
    trigger1=false; trigger1count=0;
    Serial.println(F("TRIGGER 1 DECACTIVATED"));
    }
  if (trigger2==true){
    trigger2count++;
    //angleChange=acos(((double)x*(double)bx+(double)y*(double)by+(double)z*(double)bz)/(double)AM/(double)BM);
-   angleChange = pow(pow(gx,2)+pow(gy,2)+pow(gz,2),0.5); Serial.println(angleChange);
+   angleChange = pow(pow(gx,2)+pow(gy,2)+pow(gz,2),0.5); //lenth og angle hage vector 
+   Serial.println(angleChange);
    if (angleChange>=30 && angleChange<=400){ //if orientation changes by between 80-100 degrees
      trigger3=true; trigger2=false; trigger2count=0;
      Serial.println(angleChange);
-     Serial.println(F("TRIGGER 3 ACTIVATED"));
+     Serial.println(F("TRIGGER 3 ACTIVATED"));//activate notification 
        }
    }
  if (trigger1==true){
