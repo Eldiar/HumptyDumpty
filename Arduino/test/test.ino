@@ -87,7 +87,7 @@ void loop()
 // Called when reset button is pressed
 void reset(){
   emergencyStatus = false; // Resets emergency status variable
-  sendMessage(F("False Alarm"), F("Do not worry,"));
+  sendMessage(F("False Alarm"), F("Do not worry, the Humpty Dumpty device gave off a false alarm. I have been helped or been able to help myself."));
 }
 
 // Called when emergency button is pressed
