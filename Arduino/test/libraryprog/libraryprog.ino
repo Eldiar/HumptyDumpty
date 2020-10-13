@@ -1,31 +1,23 @@
-// Importing Libraries
 #include <WiFiEsp.h>
 #include <SoftwareSerial.h>
 #include <EMailSender.h>
 
 //Defining pin functions
 SoftwareSerial EspSerial(2, 3); // RX, TX
-
 const PROGMEM int emergencyBtnPin = 11; //Digital
 const PROGMEM int resetBtnPin = 10; //Digital
 
 // GYRO PINS// SDA pin = Analog4// SCL pin = Analog5
 // Wifi Credentials
 const PROGMEM char ssid[] = "AndroidAP";    // your network SSID (name)
-const PROGMEM char pass[] = "skkj1168";        // your network password
+const PROGMEM char pass[] = "skkj1168";  
 int status = WL_IDLE_STATUS;                   // the Wifi radio's status
-
-// Status variables for output
 bool emergencyStatus = false;
 
-// ====================
-//      Setup code
-// ====================
-void setup(){
-  //initialize serial for debugging
-  Serial.begin(9600);
-
-  //initialize serial for ESP module
+void setup() {
+  // put your setup code here, to run once:
+   Serial.begin(9600);
+   //initialize serial for ESP module
   EspSerial.begin(9600);
 
   //initialize ESP module
@@ -45,7 +37,7 @@ void setup(){
     status = WiFi.begin(ssid, pass);
   }
 
-  // Send wifi connection status message
+   // Send wifi connection status message
   Serial.println(F("You're connected to the network"));
 
   //Button setup
@@ -54,47 +46,46 @@ void setup(){
   
   Serial.println(F("Buttons initalized"));
 }
+
 }
 
-void loop()
-{
- // -------------------
- // Button presses
- // -------------------
-
+void loop() {
   // Emergency button press detection
   if (digitalRead(emergencyBtnPin) == HIGH) {
-     emergency();
+   //emergency();
+   String subject="Emergency!";
+   String message="I am in an emergency and am in need of assitance!";
+   sendMessage(F(subject), F(message));
+   emergencyStatus = true;
   }
   
-  // Reset button press detetion
-  if (digitalRead(resetBtnPin) == HIGH) {
-     reset();
-  }
+//  // Reset button press detetion
+//  if (digitalRead(resetBtnPin) == HIGH) {
+//     //reset();
+//  }
  
   if (emergencyStatus == true){
     digitalWrite(6, HIGH);
   }
-
+  
   delay(100);
-}
 
-// Called when reset button is pressed
-void reset(){
-  emergencyStatus = false; // Resets emergency status variable
-  sendMessage(F("False Alarm"), F("Do not worry, the Humpty Dumpty device gave off a false alarm. I have been helped or been able to help myself."));
 }
+// Called when reset button is pressed
+//void reset(){
+//  emergencyStatus = false; // Resets emergency status variable
+//  sendMessage(F("False Alarm"), F("Do not worry, the Humpty Dumpty device gave off a false alarm. I have been helped or been able to help myself."));
+//}
 
 // Called when emergency button is pressed
-void emergency(){
-    sendMessage(F("Emergency!"), F("I am in an emergency and am in need of assitance!"));
-    emergencyStatus = true;
-}
-
-
+//void emergency(){
+//  
+//    //sendMessage(F("Emergency!"), F("I am in an emergency and am in need of assitance!"));
+//    emergencyStatus = true;
+//}
 
 // Email Sending function
-void sendMessage(String sbj, String msg){
+void sendMessage(const String& sbj, const String& msg){
   
   EMailSender emailSend("smtp.michaelidesandreas1801@gmail.com", "password");
   EMailSender::EMailMessage message;
