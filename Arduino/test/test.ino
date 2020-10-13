@@ -6,8 +6,11 @@
 //Defining pin functions
 SoftwareSerial EspSerial(2, 3); // RX, TX
 
+
 const PROGMEM int emergencyBtnPin = 11; //Digital
 const PROGMEM int resetBtnPin = 10; //Digital
+
+const EMailSender *emailSend;
 
 // GYRO PINS// SDA pin = Analog4// SCL pin = Analog5
 // Wifi Credentials
@@ -51,6 +54,8 @@ void setup(){
   //Button setup
   pinMode(emergencyBtnPin, INPUT);
   pinMode(resetBtnPin, INPUT);
+
+  emailSend =  new EMailSender("smtp.michaelidesandreas1801@gmail.com", "password");
   
   Serial.println(F("Buttons initalized"));
 }
@@ -82,12 +87,12 @@ void loop()
 // Called when reset button is pressed
 void reset(){
   emergencyStatus = false; // Resets emergency status variable
-  sendMessage(F("False Alarm"), F("Do not worry, the Humpty Dumpty device gave off a false alarm. I have been helped or been able to help myself."));
+  sendMessage(F("False Alarm"), F("Do not worry,"));
 }
 
 // Called when emergency button is pressed
 void emergency(){
-    sendMessage(F("Emergency!"), F("I am in an emergency and am in need of assitance!"));
+    sendMessage(F("Emergency!"), F("I am in an emergency and am in need of assistance!"));
     emergencyStatus = true;
 }
 
@@ -96,10 +101,12 @@ void emergency(){
 // Email Sending function
 void sendMessage(String sbj, String msg){
   
-  EMailSender emailSend("smtp.michaelidesandreas1801@gmail.com", "password");
+  //EMailSender emailSend("smtp.michaelidesandreas1801@gmail.com", "password");
   EMailSender::EMailMessage message;
   message.subject = sbj;
   message.message = msg;
   
-  EMailSender::Response resp = emailSend.send("michaelidesandreas1801@gmail.com", message);
+  EMailSender::Response resp = emailSend->send("michaelidesandreas1801@gmail.com", message);
+
+  delete &message;
 }
