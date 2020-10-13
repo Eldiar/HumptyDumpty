@@ -6,10 +6,17 @@
 
 //Defining pin functions
 SoftwareSerial EspSerial(2, 3); // RX, TX
+
+//#define emergencyBtnPin 11
+//#define resetBtnPin 10 //Digital
+//#define buzzerPin 6 //Digital
+//#define pulseSensorPin 3 //Analog
+
 const PROGMEM int emergencyBtnPin = 11; //Digital
 const PROGMEM int resetBtnPin = 10; //Digital
 const PROGMEM int buzzerPin = 6; //Digital
 const PROGMEM int pulseSensorPin = 3; //Analog
+
 // GYRO PINS
 // SDA pin = Analog4
 // SCL pin = Analog5
@@ -21,7 +28,6 @@ int status = WL_IDLE_STATUS;                   // the Wifi radio's status
 
 // Initialisation for GYRO
 const PROGMEM int MPU_addr=0x68;               // I2C address of the MPU-6050
-
 
 // Pulse detection variables
 
