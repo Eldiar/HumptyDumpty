@@ -129,7 +129,7 @@ void loop()
              }
        else{ //user regained normal orientation
           trigger3=false; trigger3count=0;
-          Serial.println("TRIGGER 3 DEACTIVATED");
+          Serial.println(F("TRIGGER 3 DEACTIVATED"));
        }
      }
   }
@@ -140,7 +140,7 @@ void loop()
    }
  if (trigger1count>=6){ //allow 0.5s for AM to break upper threshold
    trigger1=false; trigger1count=0;
-   Serial.println("TRIGGER 1 DECACTIVATED");
+   Serial.println(F("TRIGGER 1 DECACTIVATED"));
    }
  if (trigger2==true){
    trigger2count++;
@@ -149,20 +149,20 @@ void loop()
    if (angleChange>=30 && angleChange<=400){ //if orientation changes by between 80-100 degrees
      trigger3=true; trigger2=false; trigger2count=0;
      Serial.println(angleChange);
-     Serial.println("TRIGGER 3 ACTIVATED");
+     Serial.println(F("TRIGGER 3 ACTIVATED"));
        }
    }
  if (trigger1==true){
    trigger1count++;
    if (AM>=12){ //if AM breaks upper threshold (3g)
      trigger2=true;
-     Serial.println("TRIGGER 2 ACTIVATED");
+     Serial.println(F("TRIGGER 2 ACTIVATED"));
      trigger1=false; trigger1count=0;
      }
    }
  if (AM<=2 && trigger2==false){ //if AM breaks lower threshold (0.4g)
    trigger1=true;
-   Serial.println("TRIGGER 1 ACTIVATED");
+   Serial.println(F("TRIGGER 1 ACTIVATED"));
    }
  //Delay is needed to prevent clogging the port
   delay(100);
@@ -195,7 +195,7 @@ void loop()
  // -------------------
 
  if (fall==true){ //in event of a fall detection
-   Serial.println("FALL DETECTED");
+   Serial.println(F("FALL DETECTED"));
    emergencyStatus = true;
    sendMessage(F("Fall Detected!"), F("I have fallen, if no reset message appears within a minute, please send help!"));   
  }
