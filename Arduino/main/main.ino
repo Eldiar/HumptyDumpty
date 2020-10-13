@@ -95,22 +95,33 @@ void setup(){
 void loop()
 {
  // -------------------
- // Button Functions
+ // Button presses
  // -------------------
 
   // Emergency button press detection
   if (digitalRead(emergencyBtnPin) == HIGH) {
      emergency();
   }
- // Reset button press detetion
+  
+  // Reset button press detetion
   if (digitalRead(resetBtnPin) == HIGH) {
      reset();
   }
+
  // -------------------
- // Fall detection
+ // Fall output detection
+ // -------------------
+
+  // Check if a fall has been detected last loop
+  if (fall==true){ //in event of a fall detection
+    fallOccurance();
+  }
+ 
+ // -------------------
+ // Fall detection algorithm
  // -------------------
  
- //mpu_read();
+ mpu_read();
  
  //2050, 77, 1947 are values for calibration of accelerometer
  // values may be different for you
@@ -184,7 +195,7 @@ void loop()
   delay(100);
 
  // -------------------
- // Pulse detection
+ // Pulse detection algorithm
  // -------------------
  
  // Pulse Detection variables:
@@ -204,16 +215,9 @@ void loop()
   }
 
  // -------------------
- // Device output
+ // Buzzer
  // -------------------
-
- if (fall==true){ //in event of a fall detection
-   Serial.println(F("FALL DETECTED"));
-   emergencyStatus = true;
-   sendMessage(F("Fall Detected!"), F("I have fallen, if no reset message appears within a minute, please send help!"));   
- }
  
- // Add buzzer activation
   if (emergencyStatus == true){
     digitalWrite(6, HIGH);
   }
@@ -225,13 +229,22 @@ void loop()
 // Functions
 // ===================
 
+// Called when fall has been detected
+void fallOccurance(){
+   Serial.println(F("FALL DETECTED"));
+   emergencyStatus = true;
+   sendMessage(F("Fall Detected!"), F("I have fallen, if no reset message appears within a minute, please send help!")); 
+   fall = false; 
+}
+
+
 // Called when reset button is pressed
 void reset(){
   emergencyStatus = false; // Resets emergency status variable
   fall = false;
   sendMessage(F("False Alarm"), F("Do not worry, the Humpty Dumpty device gave off a false alarm. I have been helped or been able to help myself."));
 }
-
+// Called when emergency button is pressed
 void emergency(){
     sendMessage(F("Emergency!"), F("I am in an emergency and am in need of assitance!"));
     emergencyStatus = true;
