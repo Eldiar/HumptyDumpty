@@ -1,13 +1,19 @@
-#include <ESP8266WiFi.h> 
-#include <WiFiClientSecure.h> 
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <WiFiServer.h>
+#include <WiFiUdp.h>
+
+//#include <ESP8266WiFi.h> 
+//#include <WiFiClientSecure.h> 
 #include <TelegramBot.h> 
+
 #define LED 1 //led pin number
 // Initialize Wifi connection to the router 
 const char* ssid     = "xxxxx"; 
 const char* password = "yyyyy"; 
 // Initialize Telegram BOT 
 const char BotToken[] = "xxxxxxxxx"; 
-WiFiClientSecure net_ssl; 
+WiFiClient net_ssl; 
 TelegramBot bot (BotToken, net_ssl); 
 // the number of the LED pin   
 void setup()  
