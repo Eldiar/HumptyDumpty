@@ -7,6 +7,7 @@
 //Defining pin functions
 SoftwareSerial EspSerial(2, 3); // RX, TX
 
+
 //#define emergencyBtnPin 11
 //#define resetBtnPin 10 //Digital
 //#define buzzerPin 6 //Digital
@@ -36,6 +37,7 @@ const PROGMEM int MPU_addr=0x68;               // I2C address of the MPU-6050
 bool emergencyStatus = false;
 boolean fall = false;       //stores if a fall has occurred
 bool pulseMessageSent = false;
+const EMailSender *emailSend;
 
 // ====================
 //      Setup code
@@ -78,6 +80,8 @@ void setup(){
   //Button setup
   pinMode(emergencyBtnPin, INPUT);
   pinMode(resetBtnPin, INPUT);
+  
+  emailSend =  new EMailSender("smtp.michaelidesandreas1801@gmail.com", "password");
   
   Serial.println(F("Buttons initalized"));
 }
@@ -278,7 +282,7 @@ bool FallDetected(){
        trigger1count++;
        if (AM>=12){ //if AM breaks upper threshold (3g)
          trigger2=true;
-         Serial.println(F("TRIGGER 2 ACTIVATED"));
+        Serial.println(F("TRIGGER 2 ACTIVATED"));
          trigger1=false; trigger1count=0;
          }
        }
@@ -293,10 +297,13 @@ bool FallDetected(){
 // Email Sending function
 void sendMessage(String sbj, String msg){
   
-  EMailSender emailSend("smtp.michaelidesandreas1801@gmail.com", "password");
+ // EMailSender emailSend("smtp.michaelidesandreas1801@gmail.com", "password");
   EMailSender::EMailMessage message;
   message.subject = sbj;
   message.message = msg;
   
-  EMailSender::Response resp = emailSend.send("michaelidesandreas1801@gmail.com", message);
+  EMailSender::Response resp = emailSend->send("michaelidesandreas1801@gmail.com", message);
+
+  delete &message;
+  
 }

@@ -413,6 +413,7 @@ EMailSender::Response EMailSender::send(const char* to[], byte sizeOfTo,  byte s
 
 #if defined(ENABLE_ATTACHMENTS) && (defined(STORAGE_SD_ENABLED) || defined(STORAGE_SPIFFS_ENABLED))
 //  if ((sizeof(attachs) / sizeof(attachs[0]))>0){
+	
   if (sizeof(attachments)>0 && attachments.number>0){
 
 	  DEBUG_PRINT(F("Array: "));
