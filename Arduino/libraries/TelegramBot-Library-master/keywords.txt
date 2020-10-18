@@ -1,4 +1,0 @@
-TelegramBot	KEYWORD1
-begin	KEYWORD2
-sendMessage	KEYWORD2
-getUpdates	KEYWORD2
