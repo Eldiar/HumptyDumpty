@@ -1,9 +1,8 @@
 // Importing Libraries
 #include <WiFiEsp.h>
-//#include <ESP8266
 #include <SoftwareSerial.h>
 #include <EMailSender.h>
-#include "Wire.h"
+#include <Wire.h>
 
 //Defining pin functions
 SoftwareSerial EspSerial(2, 3); // RX, TX
